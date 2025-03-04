@@ -13,36 +13,46 @@ from langgraph.graph import END
 st.set_page_config(page_title="AI Query Assistant", layout="wide")
 
 # App Title
-st.title("📊 AI Query Assistant with FAISS & BigQuery")
+st.title("💬 Query Assistant")
 
 # Initialize chat history if it doesn't exist
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# User Input
-user_query = st.text_input("Ask a question:", placeholder="Ask .....")
-
-# Chat History Display
-st.subheader("Chat History")
+# Chat Display
+st.subheader("💬 Conversation History")
 for entry in st.session_state.chat_history:
-    st.markdown(f"**🧑 User:** {entry['user_query']}")
+    with st.chat_message("user"):
+        st.markdown(f"**🧑 User:** {entry['user_query']}")
     
-    # If the response is a DataFrame, display it properly
-    if isinstance(entry["response"], pd.DataFrame):
-        st.dataframe(entry["response"])
-    else:
-        st.markdown(f"**🤖 AI:** {entry['response']}")
+    with st.chat_message("assistant"):
+        if isinstance(entry["response"], pd.DataFrame):
+            st.dataframe(entry["response"])  # Display DataFrame properly
+        else:
+            st.markdown(f"**🤖 AI:** {entry['response']}")
 
-# Process Query on Button Click
-if st.button("Ask AI"):
-    if user_query.strip():
-        with st.spinner("Processing your query..."):
-            response = process_query(user_query)
+# User Input
+user_query = st.chat_input("Ask your question...")
 
-            # Store query & response in chat history
-            st.session_state.chat_history.append({"user_query": user_query, "response": response})
+# Process Query on Input
+if user_query:
+    with st.chat_message("user"):
+        st.markdown(f"**🧑 User:** {user_query}")
 
-            # Refresh UI to display updated chat history
-            st.rerun()
-    else:
-        st.error("Please enter a valid query.")
+    with st.spinner("🤖 Thinking..."):
+        response = process_query(user_query)
+
+        # Store query & response in chat history
+        st.session_state.chat_history.append({"user_query": user_query, "response": response})
+
+        # Display AI Response
+        with st.chat_message("assistant"):
+            if isinstance(response, pd.DataFrame):
+                st.dataframe(response)
+            else:
+                st.markdown(f"**🤖 AI:** {response}")
+
+# Clear Chat Button
+if st.button("🗑️ Clear Chat"):
+    st.session_state.chat_history = []
+    st.rerun()

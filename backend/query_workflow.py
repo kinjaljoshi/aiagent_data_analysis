@@ -66,7 +66,7 @@ def classify_query(state):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are an AI that classifies queries."},
                 {"role": "user", "content": classification_prompt},
@@ -120,7 +120,7 @@ def generate_sql_query(state):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are an AI specialized in generating precise SQL queries."},
                 {"role": "user", "content": prompt},
