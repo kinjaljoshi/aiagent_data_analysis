@@ -108,7 +108,7 @@ def generate_sql_query(state):
     prompt = f"""
     You are an expert SQL generator. 
 
-    Based on the provided context, generate only a valid SQL query. 
+    Based on the provided context, generate only a valid SQL query. Generate unique alias for each table used.
 
     Do not include any explanations, formatting, markdown, or comments. 
 
