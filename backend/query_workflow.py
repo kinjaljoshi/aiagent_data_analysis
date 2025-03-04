@@ -19,7 +19,12 @@ bq_client = bigquery.Client(project="your_project_id")
 vector_db = FAISS.load_local("faiss_table_index", embedding_model, allow_dangerous_deserialization=True)
 
 # Initialize LLM
-llm = OpenAI(model_name="gpt-4")  # Ensure API key is set
+import os
+
+# Load API key securely
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+llm = OpenAI(model_name="gpt-4", openai_api_key=OPENAI_API_KEY)  # Ensure API key is set
 
 class QueryState:
     def __init__(self, query_text):
