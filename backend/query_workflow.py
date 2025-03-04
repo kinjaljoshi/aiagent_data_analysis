@@ -125,7 +125,8 @@ workflow.add_edge("generate_sql_query", "execute_query")
 
 # Set Workflow Entry & Termination Nodes
 workflow.set_entry_point("classify_query")
-workflow.set_termination_nodes(["execute_query", "llm_response"])
+workflow.set_finish_edge("execute_query")  # Corrected termination condition
+workflow.set_finish_edge("llm_response")   # Corrected termination condition
 
 # Compile Workflow
 executor = workflow.compile()
