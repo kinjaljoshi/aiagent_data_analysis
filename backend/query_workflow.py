@@ -94,7 +94,8 @@ def get_query_context_wrapper(state):
     query_context = get_query_context(state["query_text"]) if vector_db else "FAISS index unavailable."
     print(f"State after get_query_context_wrapper: {state}, Query Context: {query_context}")
     print("++++++++++ Exiting get_query_context_wrapper ++++++++++")
-    return {"query_context": query_context}
+    updated_state = {**state,"query_context": query_context}
+    return updated_state
 
 # Function to generate SQL query using OpenAI
 def generate_sql_query(state):
