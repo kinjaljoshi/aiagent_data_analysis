@@ -202,6 +202,9 @@ workflow.add_node("classify_query", classify_query)
 workflow.add_node("get_query_context", get_query_context_wrapper)
 workflow.add_node("generate_sql_query", generate_sql_query)
 workflow.add_node("execute_query", execute_query)
+workflow.add_node("llm_response", llm_response)
+
+# add edges
 workflow.add_conditional_edges("classify_query", classify_edge)
 workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
