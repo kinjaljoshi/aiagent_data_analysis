@@ -58,6 +58,13 @@ def search_faiss_index(filtered_keywords, faiss_index_path="faiss_table_index"):
         print(f" Error loading FAISS index: {e}")
         return []
 
+def get_query_context(query_text):
+    """Extracts keywords and retrieves relevant FAISS context."""
+    keywords = extract_keywords(query_text)
+    docs = search_faiss_index(keywords)
+    return "query_text : ".join([doc.page_content for doc in docs]) if docs else "No relevant context found"
+
+
 def display_results(results):
     """
     Prints the search results.
