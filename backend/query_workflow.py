@@ -72,7 +72,7 @@ def generate_sql_query(state):
     try:
         state.sql_query = llm(prompt)
     except Exception as e:
-        logging.error(f"❌ Error generating SQL query: {e}")
+        logging.error(f" Error generating SQL query: {e}")
         state.sql_query = "SQL generation failed."
     return state
 
@@ -88,7 +88,7 @@ def execute_query(state):
         df = query_job.to_dataframe()
         state.results = df
     except Exception as e:
-        logging.error(f"❌ Error executing SQL query: {e}")
+        logging.error(f" Error executing SQL query: {e}")
         state.results = "SQL execution failed."
     return state
 
@@ -98,7 +98,7 @@ def llm_response(state):
     try:
         state.results = llm(state.query_text)
     except Exception as e:
-        logging.error(f"❌ LLM response error: {e}")
+        logging.error(f" LLM response error: {e}")
         state.results = "Error retrieving response."
     return state
 
