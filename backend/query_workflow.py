@@ -83,8 +83,9 @@ def classify_query(state):
         query_type = "General Query"
 
     print(f"State after classify_query: {state}, Query Type: {query_type}")
+    updated_state = {**state, "query_type": query_type}  
     print("++++++++++ Exiting classify_query ++++++++++")
-    return {"query_type": query_type}
+    return updated_state
 
 # Function to fetch Query Context from FAISS
 def get_query_context_wrapper(state):
