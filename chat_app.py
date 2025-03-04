@@ -23,13 +23,13 @@ if "chat_history" not in st.session_state:
 #st.subheader("💬 Conversation History")
 for entry in st.session_state.chat_history:
     with st.chat_message("user"):
-        st.markdown(f"User:** {entry['user_query']}")
+        st.markdown(f" {entry['user_query']}")
     
     with st.chat_message("assistant"):
         if isinstance(entry["response"], pd.DataFrame):
             st.dataframe(entry["response"])  # Display DataFrame properly
         else:
-            st.markdown(f"AI:** {entry['response']}")
+            st.markdown(f" {entry['response']}")
 
 # User Input
 user_query = st.chat_input("Ask your question...")
@@ -37,7 +37,7 @@ user_query = st.chat_input("Ask your question...")
 # Process Query on Input
 if user_query:
     with st.chat_message("user"):
-        st.markdown(f"User:** {user_query}")
+        st.markdown(f" {user_query}")
 
     with st.spinner(" Thinking..."):
         response = process_query(user_query)
@@ -50,7 +50,7 @@ if user_query:
             if isinstance(response, pd.DataFrame):
                 st.dataframe(response)
             else:
-                st.markdown(f"AI:** {response}")
+                st.markdown(f" {response}")
 
 # Clear Chat Button
 if st.button("Clear Chat"):
