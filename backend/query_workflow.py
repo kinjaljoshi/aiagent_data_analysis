@@ -46,6 +46,7 @@ class QueryState:
 # Step 1: Classify Query
 def classify_query(state):
     """Classifies the user query as either 'General Query' or 'DB Query'."""
+    print(f"query_processing.classify_query: - {state}")
     query_text = state.query_text.lower()
     if any(word in query_text for word in ["warehouse", "inventory", "item", "stock"]):
         state.query_type = "DB Query"
@@ -56,6 +57,7 @@ def classify_query(state):
 # Step 2: Fetch Query Context from FAISS
 def get_query_context_wrapper(state):
     """Wrapper to fetch query context from FAISS using query_processing.py."""
+    print(f"query_processing.get_query_context_wrapper: - {state}")
     if vector_db:
         state.query_context = get_query_context(state.query_text)
     else:
@@ -65,6 +67,7 @@ def get_query_context_wrapper(state):
 # Step 3: Generate SQL Query
 def generate_sql_query(state):
     """Uses LLM to generate SQL query based on FAISS context."""
+    print(f"query_processing.generate_sql_query: - {state}")
     if state.query_context == "FAISS index unavailable.":
         state.sql_query = "No query generated due to missing FAISS context."
         return state
@@ -80,6 +83,7 @@ def generate_sql_query(state):
 # Step 4: Execute Query in BigQuery
 def execute_query(state):
     """Runs the generated SQL query in BigQuery."""
+    print(f"query_processing.execute_query: - {state}")
     if "failed" in state.sql_query.lower() or "No query generated" in state.sql_query:
         state.results = "No valid SQL query to execute."
         return state
@@ -96,6 +100,7 @@ def execute_query(state):
 # Step 5: Handle General Queries via LLM
 def llm_response(state):
     """Returns an LLM-generated response for general queries."""
+    print(f"query_processing.llm_response: - {state}")
     try:
         state.results = llm(state.query_text)
     except Exception as e:
@@ -135,6 +140,7 @@ executor = workflow.compile()
 # Function to Process Queries
 def process_query(user_input):
     """Processes user input through LangGraph workflow and returns results."""
+    print(f"query_processing.process_query: - {user_input}")
     query_state = QueryState(user_input)
     final_state = executor.invoke(query_state)
     return final_state.results
