@@ -43,6 +43,6 @@ if st.button("Ask AI"):
             st.session_state.chat_history.append({"user_query": user_query, "response": response})
 
             # Refresh UI to display updated chat history
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.error("Please enter a valid query.")
