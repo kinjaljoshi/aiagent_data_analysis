@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "backend
 from query_workflow import process_query
 import streamlit as st
 import pandas as pd
+from langgraph.graph import END 
 
 # Streamlit UI Configuration
 st.set_page_config(page_title="AI Query Assistant", layout="wide")

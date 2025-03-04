@@ -7,6 +7,7 @@ from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddi
 from langchain.llms import OpenAI
 from langgraph.graph import StateGraph
 from query_processing import get_query_context
+from langgraph.graph import END 
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -14,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # Load API Key securely
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your environment.")
+    raise ValueError("OPENAI_API_KEY is missing! Set it in your environment.")
 
 # Load Sentence Transformer Model
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -25,9 +26,9 @@ bq_client = bigquery.Client(project="your_project_id")
 # Load FAISS Index (Handle errors)
 try:
     vector_db = FAISS.load_local("faiss_table_index", embedding_model, allow_dangerous_deserialization=True)
-    logging.info("✅ FAISS index loaded successfully.")
+    logging.info(" FAISS index loaded successfully.")
 except Exception as e:
-    logging.error(f"❌ Error loading FAISS index: {e}")
+    logging.error(f" Error loading FAISS index: {e}")
     vector_db = None
 
 # Initialize OpenAI LLM
@@ -125,8 +126,8 @@ workflow.add_edge("generate_sql_query", "execute_query")
 
 # Set Workflow Entry & Termination Nodes
 workflow.set_entry_point("classify_query")
-workflow.set_finish_edge("execute_query")  # Corrected termination condition
-workflow.set_finish_edge("llm_response")   # Corrected termination condition
+workflow.add_edge("execute_query", END)  
+workflow.add_edge("llm_response",END)   
 
 # Compile Workflow
 executor = workflow.compile()
