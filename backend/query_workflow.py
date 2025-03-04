@@ -165,7 +165,7 @@ def llm_response(state):
 
     print(f"Generated SQL Query: {sql_query}")
     print("++++++++++ Exiting generate_sql_query ++++++++++")
-    return {**state, "results": results}
+    return {**state, "results": sql_query}
 
 
 # Function to execute query in BigQuery
