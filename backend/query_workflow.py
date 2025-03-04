@@ -110,6 +110,7 @@ def generate_sql_query(state):
 
     Based on the provided context, generate only a valid SQL query. Generate unique alias for each table used.
     Only use tables needed for answering user question.
+    Include condition for aggregation and filtering as needed
 
     Do not include any explanations, formatting, markdown, or comments. 
 

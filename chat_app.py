@@ -20,7 +20,7 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # User Input
-user_query = st.text_input("Ask a question:", placeholder="Get warehouse and item inventory")
+user_query = st.text_input("Ask a question:", placeholder="Ask .....")
 
 # Chat History Display
 st.subheader("Chat History")
