@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # Load API Key securely
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your environment.")
+    raise ValueError(" OPENAI_API_KEY is missing! Set it in your environment.")
 
 # Load Sentence Transformer Model
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -25,22 +25,42 @@ bq_client = bigquery.Client(project="your_project_id")
 # Load FAISS Index (Handle errors)
 try:
     vector_db = FAISS.load_local("faiss_table_index", embedding_model, allow_dangerous_deserialization=True)
-    logging.info("✅ FAISS index loaded successfully.")
+    logging.info(" FAISS index loaded successfully.")
 except Exception as e:
-    logging.error(f"❌ Error loading FAISS index: {e}")
+    logging.error(f" Error loading FAISS index: {e}")
     vector_db = None
 
 # Initialize OpenAI LLM
 llm = OpenAI(model_name="gpt-4", openai_api_key=OPENAI_API_KEY)
 
 # Define StateGraph Workflow
-workflow = StateGraph(dict)  # ✅ LangGraph requires a dict-based state
+workflow = StateGraph(dict)  #  LangGraph requires a dict-based state
 
 # Step 1: Classify Query
 def classify_query(state):
-    """Classifies the user query as either 'General Query' or 'DB Query'."""
+    """Classifies the user query using LLM as either 'General Query' or 'Database Query'."""
     print("++++++++++ Entering classify_query ++++++++++")
-    query_type = "DB Query" if "warehouse" in state["query_text"].lower() else "General Query"
+    
+    classification_prompt = f"""
+    Classify the following user query as either 'General Query' or 'Database Query':
+
+    Query: "{state['query_text']}"
+
+    Return ONLY 'General Query' or 'Database Query'.
+    """
+
+    try:
+        response = llm.invoke([
+            {"role": "system", "content": "You are an AI that classifies queries."},
+            {"role": "user", "content": classification_prompt},
+        ])
+        query_type = response.strip()  # Ensure we capture only the classification
+        if query_type not in ["General Query", "Database Query"]:
+            query_type = "General Query"  # Default fallback
+    except Exception as e:
+        logging.error(f" Error classifying query with LLM: {e}")
+        query_type = "General Query"  # Default to general if LLM fails
+
     print(f"State after classify_query: {state}, Query Type: {query_type}")
     print("++++++++++ Exiting classify_query ++++++++++")
     return {"query_type": query_type}
@@ -66,7 +86,7 @@ def generate_sql_query(state):
     try:
         sql_query = llm(prompt)
     except Exception as e:
-        logging.error(f"❌ Error generating SQL query: {e}")
+        logging.error(f" Error generating SQL query: {e}")
         sql_query = "SQL generation failed."
 
     print(f"State after generate_sql_query: {state}, SQL Query: {sql_query}")
@@ -86,7 +106,7 @@ def execute_query(state):
         df = query_job.to_dataframe()
         results = df
     except Exception as e:
-        logging.error(f"❌ Error executing SQL query: {e}")
+        logging.error(f" Error executing SQL query: {e}")
         results = "SQL execution failed."
 
     print(f"State after execute_query: {state}, Results: {results}")
@@ -100,7 +120,7 @@ def llm_response(state):
     try:
         results = llm(state["query_text"])
     except Exception as e:
-        logging.error(f"❌ LLM response error: {e}")
+        logging.error(f" LLM response error: {e}")
         results = "Error retrieving response."
 
     print(f"State after llm_response: {state}, LLM Response: {results}")
@@ -116,7 +136,7 @@ workflow.add_node("llm_response", llm_response)
 
 # Define Conditional Routing
 def classify_edge(state):
-    """Determines the next step based on query type."""
+    """Determines the next step based on LLM classification."""
     return "llm_response" if state["query_type"] == "General Query" else "get_query_context"
 
 workflow.add_conditional_edges("classify_query", classify_edge)
@@ -125,7 +145,7 @@ workflow.add_conditional_edges("classify_query", classify_edge)
 workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 
-# ✅ Use END node for workflow termination
+#  Use END node for workflow termination
 workflow.add_edge("execute_query", END)
 workflow.add_edge("llm_response", END)
 
@@ -143,4 +163,4 @@ def process_query(user_input):
     final_state = executor.invoke(initial_state)
     print(f"++++++++++ Final State in process_query: {final_state} ++++++++++")
     print("++++++++++ Exiting process_query ++++++++++")
-    return final_state["results"]  # ✅ Extract results from the dict
+    return final_state["results"]  #  Extract results from the dict
