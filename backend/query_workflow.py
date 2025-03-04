@@ -99,7 +99,8 @@ def get_query_context_wrapper(state):
 # Function to generate SQL query using OpenAI
 def generate_sql_query(state):
     """Uses LLM to generate an SQL query based on FAISS context, ensuring no explanations or markdown."""
-    final_context = 'Question:' + state["query_text"] + 'SQL Context:' + state['query_context']
+    final_context = 'Question:' + state['query_text'] + 'SQL Context:' + state['query_context']
+    print('++++++++++++++++++++++++++++Final Context ++++++++++++',final_context)
     print("++++++++++ Entering generate_sql_query ++++++++++", state['query_context'])
     if state["query_context"] == "FAISS index unavailable.":
         print("++++++++++ Exiting generate_sql_query (No FAISS context) ++++++++++")
