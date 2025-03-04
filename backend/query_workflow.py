@@ -109,6 +109,7 @@ def generate_sql_query(state):
     You are an expert SQL generator. 
 
     Based on the provided context, generate only a valid SQL query. Generate unique alias for each table used.
+    Only use tables needed for answering user question.
 
     Do not include any explanations, formatting, markdown, or comments. 
 
