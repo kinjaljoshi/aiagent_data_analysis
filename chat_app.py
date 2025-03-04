@@ -15,21 +15,34 @@ st.set_page_config(page_title="AI Query Assistant", layout="wide")
 # App Title
 st.title("📊 AI Query Assistant with FAISS & BigQuery")
 
-# User Input
-user_query = st.text_input("Enter your query:", placeholder="Get warehouse and item inventory")
+# Initialize chat history if it doesn't exist
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-if st.button("Search"):
+# User Input
+user_query = st.text_input("Ask a question:", placeholder="Get warehouse and item inventory")
+
+# Chat History Display
+st.subheader("Chat History")
+for entry in st.session_state.chat_history:
+    st.markdown(f"**🧑 User:** {entry['user_query']}")
+    
+    # If the response is a DataFrame, display it properly
+    if isinstance(entry["response"], pd.DataFrame):
+        st.dataframe(entry["response"])
+    else:
+        st.markdown(f"**🤖 AI:** {entry['response']}")
+
+# Process Query on Button Click
+if st.button("Ask AI"):
     if user_query.strip():
         with st.spinner("Processing your query..."):
-            results = process_query(user_query)
+            response = process_query(user_query)
 
-            # Display Results
-            if isinstance(results, pd.DataFrame):
-                st.success("Query executed successfully!")
-                st.dataframe(results)
-            elif isinstance(results, str):
-                st.info(results)
-            else:
-                st.warning("No relevant results found.")
+            # Store query & response in chat history
+            st.session_state.chat_history.append({"user_query": user_query, "response": response})
+
+            # Refresh UI to display updated chat history
+            st.experimental_rerun()
     else:
         st.error("Please enter a valid query.")
