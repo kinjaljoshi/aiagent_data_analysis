@@ -35,7 +35,7 @@ except Exception as e:
     vector_db = None
 
 # Function to replace table names with project & dataset in BigQuery SQL
-def replace_table_name_with_project_and_dataset(raw_query, project_id="llm-text-to-sql-445914", dataset_id="sales_data"):
+def replace_table_name_with_project_and_dataset(raw_query, project_id="llm-text-to-sql-445914", dataset_id="llm_text_to_sql"):
     """Replaces table names in the query with the format `project_id.dataset_id.table_name`."""
     print("++++++++++ Entering replace_table_name_with_project_and_dataset ++++++++++")
     
