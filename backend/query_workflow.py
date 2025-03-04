@@ -98,18 +98,29 @@ def get_query_context_wrapper(state):
 
 # Function to generate SQL query using OpenAI
 def generate_sql_query(state):
-    """Uses LLM to generate SQL query based on FAISS context."""
+    """Uses LLM to generate an SQL query based on FAISS context, ensuring no explanations or markdown."""
     print("++++++++++ Entering generate_sql_query ++++++++++")
     if state["query_context"] == "FAISS index unavailable.":
         print("++++++++++ Exiting generate_sql_query (No FAISS context) ++++++++++")
-        return {"sql_query": "No query generated due to missing FAISS context."}
+        return {**state, "sql_query": "No query generated due to missing FAISS context."}
 
-    prompt = f"Using this context: {state['query_context']}, generate an SQL query to fetch relevant information."
+    # Updated prompt to ensure only SQL is returned
+    prompt = f"""
+    You are an expert SQL generator. 
+
+    Based on the provided context, generate only a valid SQL query. 
+
+    Do not include any explanations, formatting, markdown, or comments. 
+
+    Context:
+    {state['query_context']}
+    """
+
     try:
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are an AI that generates SQL queries."},
+                {"role": "system", "content": "You are an AI specialized in generating precise SQL queries."},
                 {"role": "user", "content": prompt},
             ]
         )
@@ -119,9 +130,9 @@ def generate_sql_query(state):
         logging.error(f"❌ Error generating SQL query: {e}")
         sql_query = "SQL generation failed."
 
-    print(f"State after generate_sql_query: {state}, SQL Query: {sql_query}")
+    print(f"Generated SQL Query: {sql_query}")
     print("++++++++++ Exiting generate_sql_query ++++++++++")
-    return {"sql_query": sql_query}
+    return {**state, "sql_query": sql_query}
 
 # Function to execute query in BigQuery
 def execute_query(state):
