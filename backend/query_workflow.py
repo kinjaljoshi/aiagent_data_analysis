@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # Load API Key securely
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your environment.")
+    raise ValueError("OPENAI_API_KEY is missing! Set it in your environment.")
 
 # Initialize OpenAI Client
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -29,9 +29,9 @@ bq_client = bigquery.Client(project="llm-text-to-sql-445914")
 # Load FAISS Index (Handle errors)
 try:
     vector_db = FAISS.load_local("faiss_table_index", embedding_model, allow_dangerous_deserialization=True)
-    logging.info("✅ FAISS index loaded successfully.")
+    logging.info("FAISS index loaded successfully.")
 except Exception as e:
-    logging.error(f"❌ Error loading FAISS index: {e}")
+    logging.error(f"Error loading FAISS index: {e}")
     vector_db = None
 
 # Function to replace table names with project & dataset in BigQuery SQL
@@ -75,11 +75,11 @@ def classify_query(state):
         query_type = response.choices[0].message.content.strip()
 
         if query_type not in ["General Query", "Database Query"]:
-            print("❌ Invalid LLM response, defaulting to General Query")
+            print("Invalid LLM response, defaulting to General Query")
             query_type = "General Query"
 
     except Exception as e:
-        print(f"❌ Error classifying query with LLM: {e}")
+        print(f"Error classifying query with LLM: {e}")
         query_type = "General Query"
 
     print(f"State after classify_query: {state}, Query Type: {query_type}")
@@ -132,12 +132,41 @@ def generate_sql_query(state):
         sql_query = response.choices[0].message.content.strip()
 
     except Exception as e:
-        logging.error(f"❌ Error generating SQL query: {e}")
+        logging.error(f"Error generating SQL query: {e}")
         sql_query = "SQL generation failed."
 
     print(f"Generated SQL Query: {sql_query}")
     print("++++++++++ Exiting generate_sql_query ++++++++++")
     return {**state, "sql_query": sql_query}
+
+def llm_response(state):
+    """Uses LLM to generate an SQL query based on FAISS context, ensuring no explanations or markdown."""
+    final_context = 'Question:' + state['query_text']
+    print('++++++++++++++++++++++++++++Final Context ++++++++++++',final_context)
+    # Updated prompt to ensure only SQL is returned
+    prompt = f"""
+    You are an Helpful assistant. Answer the user question:
+    {final_context}
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an helpful assistant"},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        sql_query = response.choices[0].message.content.strip()
+
+    except Exception as e:
+        logging.error(f"Error generating SQL query: {e}")
+        sql_query = "SQL generation failed."
+
+    print(f"Generated SQL Query: {sql_query}")
+    print("++++++++++ Exiting generate_sql_query ++++++++++")
+    return {**state, "sql_query": sql_query}
+
 
 # Function to execute query in BigQuery
 def execute_query(state):
@@ -155,7 +184,7 @@ def execute_query(state):
         results = df
 
     except Exception as e:
-        logging.error(f"❌ Error executing SQL query: {e}")
+        logging.error(f"Error executing SQL query: {e}")
         results = "SQL execution failed."
 
     print(f"State after execute_query: {state}, Results: {results}")
@@ -177,6 +206,7 @@ workflow.add_conditional_edges("classify_query", classify_edge)
 workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 workflow.add_edge("execute_query", END)
+workflow.add_edge("llm_response", END)
 
 # Set Workflow Entry Point
 workflow.set_entry_point("classify_query")
