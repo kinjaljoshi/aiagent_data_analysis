@@ -245,7 +245,7 @@ workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 workflow.add_edge("execute_query", END)
 workflow.add_edge("llm_response", END)
-workflow.add_node("llm_sql_response",END)
+workflow.add_edge("llm_sql_response",END)
 
 # Set Workflow Entry Point
 workflow.set_entry_point("classify_query")
