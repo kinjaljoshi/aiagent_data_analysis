@@ -57,11 +57,11 @@ def classify_query(state):
     print("++++++++++ Entering classify_query ++++++++++")
 
     classification_prompt = f"""
-    Classify the following user query as either 'General Query' or 'Database Query':
+    Classify the following user query as either 'General Query' 'General Query with DB context' or 'Database Query':
 
     Query: "{state['query_text']}"
 
-    Return ONLY 'General Query' or 'Database Query'.
+    Return ONLY 'General Query' 'General Query with DB context' or 'Database Query'.
     """
 
     try:
@@ -74,7 +74,7 @@ def classify_query(state):
         )
         query_type = response.choices[0].message.content.strip()
 
-        if query_type not in ["General Query", "Database Query"]:
+        if query_type not in ["General Query", "Database Query", "General Query with DB context"]:
             print("Invalid LLM response, defaulting to General Query")
             query_type = "General Query"
 
@@ -167,6 +167,34 @@ def llm_response(state):
     print("++++++++++ Exiting generate_sql_query ++++++++++")
     return {**state, "results": sql_query}
 
+def llm_sql_response(state):
+    """Uses LLM to generate an SQL query based on FAISS context, ensuring no explanations or markdown."""
+    final_context = 'Question:' + state['query_text']
+    print('++++++++++++++++++++++++++++Final Context ++++++++++++',final_context)
+    # Updated prompt to ensure only SQL is returned
+    prompt = f"""
+    Answer the user question with the context provided:
+    {final_context}
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an helpful assistant"},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        sql_query = response.choices[0].message.content.strip()
+
+    except Exception as e:
+        logging.error(f"Error generating SQL query: {e}")
+        sql_query = "SQL generation failed."
+
+    print(f"Generated SQL Query: {sql_query}")
+    print("++++++++++ Exiting generate_sql_query ++++++++++")
+    return {**state, "results": sql_query}
+
 
 # Function to execute query in BigQuery
 def execute_query(state):
@@ -194,11 +222,18 @@ def execute_query(state):
 # Define Conditional Routing Using LLM Classification
 def classify_edge(state):
     """Determines the next step based on LLM classification."""
-    return "llm_response" if state["query_type"] == "General Query" else "get_query_context"
+    if state["query_type"] == "General Query with DB Context":
+        return "llm_sql_response"
+    elif state["query_type"] == "General Query":
+        return "llm_response"
+    else:
+        return "get_query_context"
+
 
 # Define LangGraph Workflow
 workflow = StateGraph(dict)
 workflow.add_node("classify_query", classify_query)
+workflow.add_node("llm_sql_response",llm_sql_response)
 workflow.add_node("get_query_context", get_query_context_wrapper)
 workflow.add_node("generate_sql_query", generate_sql_query)
 workflow.add_node("execute_query", execute_query)
@@ -210,6 +245,7 @@ workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 workflow.add_edge("execute_query", END)
 workflow.add_edge("llm_response", END)
+workflow.add_node("llm_sql_response",END)
 
 # Set Workflow Entry Point
 workflow.set_entry_point("classify_query")
