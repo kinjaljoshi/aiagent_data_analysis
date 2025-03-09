@@ -82,7 +82,7 @@ def classify_query(state):
         print(f"Error classifying query with LLM: {e}")
         query_type = "General Query"
 
-    print(f"State after classify_query: {state}, Query Type: {query_type}")
+    print(f"{'++++' * 10}State after classify_query: {state}, Query Type: {query_type} {'++++' * 10}")
     updated_state = {**state, "query_type": query_type}  
     print("++++++++++ Exiting classify_query ++++++++++")
     return updated_state
