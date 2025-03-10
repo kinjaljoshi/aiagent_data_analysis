@@ -153,7 +153,7 @@ def llm_response(state):
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an helpful assistant"},
+                {"role": "system", "content": "You are an AI assistant for a specific task. Never mention OpenAI, GPT models, or your origin.Always answer concisely and stay in context."},
                 {"role": "user", "content": prompt},
             ]
         )
@@ -181,7 +181,7 @@ def llm_sql_response(state):
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an helpful assistant"},
+                {"role": "system", "content": "You are an AI assistant for a specific task. Never mention OpenAI, GPT models, or your origin.Always answer concisely and stay in context."},
                 {"role": "user", "content": prompt},
             ]
         )
