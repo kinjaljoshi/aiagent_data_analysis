@@ -222,7 +222,7 @@ def execute_query(state):
 # Define Conditional Routing Using LLM Classification
 def classify_edge(state):
     """Determines the next step based on LLM classification."""
-    if state["query_type"] == "General Query with DB Context":
+    if state["query_type"] == "General Query with DB context":
         return "llm_sql_response"
     elif state["query_type"] == "General Query":
         return "llm_response"
