@@ -318,6 +318,7 @@ Constraints:
 
     # Get code from LLM
     generated_python_code = call_llm_for_plot_code(llm_prompt)
+    print('++++++++++++++++++++++++++code ++++++++++++++++\n',generated_python_code)
 
     # Execute the generated code
     local_vars = {"df": df, "plt": plt}
