@@ -245,7 +245,7 @@ def is_chart_requested(context: dict) -> bool:
     Checks whether the user request indicates they want a chart.
     Simple keyword-based approach.
     """
-    user_request = context.get("query_text", "").lower()
+    user_request = state['query_text'].lower()
     trigger_words = ["plot", "chart", "visualize", "bar chart", "line chart", "graph"]
     return any(word in user_request for word in trigger_words)
 
