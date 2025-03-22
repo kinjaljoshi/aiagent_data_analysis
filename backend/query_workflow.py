@@ -291,15 +291,11 @@ def call_llm_for_plot_code(prompt: str) -> str:
 # ---------------------------------------------------------------------
 def plot_chart(state: dict) -> dict:
     import asyncio
-    import matplotlib.pyplot as plt
-    from langchain_experimental.utilities import PythonREPL
-    import streamlit as st
-
-    # Patch event loop if needed (Streamlit fix)
     try:
-        asyncio.get_running_loop()
+        loop = asyncio.get_running_loop()
     except RuntimeError:
-        asyncio.set_event_loop(asyncio.new_event_loop())
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
     """
     This node:
