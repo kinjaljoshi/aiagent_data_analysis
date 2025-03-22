@@ -322,7 +322,7 @@ Requirements:
 
     # Call LLM
     generated_code = call_llm_for_plot_code(code_prompt)
-    st.code(generated_code, language="python")  # Optional: display the generated code
+    #st.code(generated_code, language="python")  # Optional: display the generated code
 
     # Prepare REPL
     repl = PythonREPL()
@@ -335,6 +335,7 @@ Requirements:
     try:
         # Run the code (it shouldn't include plt.show())
         repl.run(generated_code)
+        print('++++++++++run generated code +++++++++++++++++++++++')
 
         # Now display the last matplotlib figure
         st.pyplot(plt.gcf())  
