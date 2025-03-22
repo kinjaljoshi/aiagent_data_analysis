@@ -12,6 +12,7 @@ from openai import OpenAI
 from langchain_core.tools import Tool
 from langchain_experimental.utilities import PythonREPL
 import streamlit as st
+from PIL import Image
 
 
 # ---------------------------------------------------------------------
