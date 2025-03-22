@@ -301,7 +301,7 @@ def plot_chart(state: dict) -> dict:
     print("++++++++++ Entering plot_chart ++++++++++")
     #df = state.get("df")
     df = pd.read_parquet("parquet_cache/df_file.parquet")
-    user_chart_request = state.get("query_text", "")
+    user_request = state.get("query_text", "")
 
     if df is None or not isinstance(df, pd.DataFrame):
         logging.warning("No valid DataFrame found to plot.")
