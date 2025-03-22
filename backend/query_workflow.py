@@ -292,7 +292,7 @@ def call_llm_for_plot_code(prompt: str) -> str:
 def plot_chart(state: dict) -> dict:
     import asyncio
     import matplotlib.pyplot as plt
-    from langchain.tools import PythonREPLTool
+    from langchain_experimental.utilities import PythonREPL
     import streamlit as st
 
     # Patch event loop if needed (Streamlit fix)
