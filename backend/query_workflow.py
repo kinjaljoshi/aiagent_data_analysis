@@ -305,16 +305,21 @@ def plot_chart(state: dict) -> dict:
 
     # Build prompt for the LLM
     llm_prompt = f"""
-You are given a pandas DataFrame named df with columns: {list(df.columns)}.
-Write Python code that uses ONLY matplotlib (no seaborn) to produce a chart based on this request:
-`{user_chart_request}`
+You are an AI that generates matplotlib chart code using an existing pandas DataFrame called `df`.
 
-Constraints:
-- Display (show) the figure so it appears in the interface.
-- Do not overwrite or close the figure after plotting.
-- Do not use any external libraries besides matplotlib and pandas.
-- Code must be entirely self-contained.
-""".strip()
+The DataFrame already exists and is fully populated.
+
+Given the user request: "{user_chart_request}", generate only the Python code to produce a plot using `matplotlib.pyplot` and the existing `df`.
+
+**Strict Requirements**:
+- Do NOT include any explanations, comments, or markdown.
+- Do NOT import pandas or create sample data.
+- Do NOT redefine or modify the existing DataFrame `df`.
+- Use `plt.show()` to render the chart.
+
+Just return the valid, minimal Python code.
+"""
+
 
     # Get code from LLM
     generated_python_code = call_llm_for_plot_code(llm_prompt)
