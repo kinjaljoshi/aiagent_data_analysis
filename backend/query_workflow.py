@@ -308,7 +308,7 @@ def plot_chart(state: dict) -> dict:
         return {**state, "plot_error": "No DataFrame available for plotting."}
 
     # Build prompt for the LLM
-        code_prompt = f"""
+    code_prompt = f"""
 You are given a pandas DataFrame named `df` with columns: {list(df.columns)}.
 Generate Python code using matplotlib to visualize this request:
 \"\"\"{user_request}\"\"\"
