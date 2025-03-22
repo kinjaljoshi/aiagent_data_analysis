@@ -308,7 +308,7 @@ def plot_chart(state: dict) -> dict:
         return {**state, "plot_error": "No DataFrame available for plotting."}
 
     # Build prompt for the LLM
-        prompt = f"""
+        code_prompt = f"""
 You are given a pandas DataFrame named `df` with columns: {list(df.columns)}.
 Generate Python code using matplotlib to visualize this request:
 \"\"\"{user_request}\"\"\"
@@ -321,7 +321,7 @@ Requirements:
 """
 
     # Call LLM
-    generated_code = call_llm_for_plot_code(prompt)
+    generated_code = call_llm_for_plot_code(code_prompt)
     st.code(generated_code, language="python")  # Optional: display the generated code
 
     # Prepare REPL
@@ -337,7 +337,7 @@ Requirements:
         repl.run(generated_code)
 
         # Now display the last matplotlib figure
-        st.pyplot(plt.gcf())  # ✅ This renders the figure in Streamlit
+        st.pyplot(plt.gcf())  
 
     except Exception as e:
         return {**state, "plot_error": str(e)}
