@@ -9,6 +9,10 @@ from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddi
 from langgraph.graph import StateGraph, END
 from query_processing import get_query_context
 from openai import OpenAI
+from langchain_core.tools import Tool
+from langchain_experimental.utilities import PythonREPL
+
+
 
 # ---------------------------------------------------------------------
 # Setup Logging
@@ -328,7 +332,9 @@ Just return the valid, minimal Python code.
     # Execute the generated code
     local_vars = {"df": df, "plt": plt}
     try:
-        exec(generated_python_code, {}, local_vars)
+        python_repl = PythonREPLTool()
+        python_repl.globals["df"] = df
+        utput = python_repl.run(generated_python_code)
     except Exception as e:
         print(f"Plot code error: {e}")
         state["plot_error"] = str(e)
