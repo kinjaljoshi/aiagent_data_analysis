@@ -301,7 +301,7 @@ def plot_chart(state: dict) -> dict:
 
     if df is None or not isinstance(df, pd.DataFrame):
         logging.warning("No valid DataFrame found to plot.")
-        return {**context, "plot_error": "No DataFrame available for plotting."}
+        return {**state, "plot_error": "No DataFrame available for plotting."}
 
     # Build prompt for the LLM
     llm_prompt = f"""
@@ -325,13 +325,13 @@ Constraints:
         exec(generated_python_code, {}, local_vars)
     except Exception as e:
         print(f"Plot code error: {e}")
-        context["plot_error"] = str(e)
-        return context
+        state["plot_error"] = str(e)
+        return state
 
     # Indicate success
-    context["chart_plotted"] = True
+    state["chart_plotted"] = True
     print("++++++++++ Exiting plot_chart ++++++++++")
-    return context
+    return state
 
 # Define a routing function that returns the next node name
 def chart_edge(state):
