@@ -345,8 +345,8 @@ workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 
 # If user wants a chart, go to plot_chart; else go to END
-workflow.add_conditional_edges("execute_query", "plot_chart", condition=is_chart_requested)
-workflow.add_conditional_edges("execute_query", END, condition=is_not_chart_requested)
+workflow.add_conditional_edges("execute_query", "plot_chart", is_chart_requested)
+workflow.add_conditional_edges("execute_query", END, is_not_chart_requested)
 
 workflow.add_edge("plot_chart", END)
 workflow.add_edge("llm_response", END)
