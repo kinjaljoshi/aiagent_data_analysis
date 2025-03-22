@@ -317,7 +317,7 @@ def plot_chart(state: dict) -> dict:
     # Build prompt for the LLM
     code_prompt = f"""
 You are a code generator. Use matplotlib to generate a chart for this request:
-\"\"\"{user_chart_request}\"\"\"
+\"\"\"{user_request}\"\"\"
 
 Use the existing DataFrame named df.
 
