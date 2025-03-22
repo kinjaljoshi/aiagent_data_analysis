@@ -326,6 +326,12 @@ Constraints:
     print("++++++++++ Exiting plot_chart ++++++++++")
     return context
 
+# Define a routing function that returns the next node name
+def chart_edge(state):
+    return "plot_chart" if is_chart_requested(state) else END
+
+
+
 # ---------------------------------------------------------------------
 # Define the LangGraph Workflow
 # ---------------------------------------------------------------------
@@ -345,8 +351,9 @@ workflow.add_edge("get_query_context", "generate_sql_query")
 workflow.add_edge("generate_sql_query", "execute_query")
 
 # If user wants a chart, go to plot_chart; else go to END
-workflow.add_conditional_edges("execute_query", "plot_chart", is_chart_requested)
-workflow.add_conditional_edges("execute_query", END, is_not_chart_requested)
+#workflow.add_conditional_edges("execute_query", "plot_chart", is_chart_requested)
+#workflow.add_conditional_edges("execute_query", END, is_not_chart_requested)
+workflow.add_conditional_edges("execute_query", chart_edge)
 
 workflow.add_edge("plot_chart", END)
 workflow.add_edge("llm_response", END)
