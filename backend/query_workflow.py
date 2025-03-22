@@ -332,7 +332,7 @@ Just return the valid, minimal Python code.
     # Execute the generated code
     local_vars = {"df": df, "plt": plt}
     try:
-        python_repl = PythonREPLTool()
+        python_repl = PythonREPL()
         python_repl.globals["df"] = df
         utput = python_repl.run(generated_python_code)
     except Exception as e:
