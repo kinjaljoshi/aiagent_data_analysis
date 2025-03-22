@@ -209,6 +209,10 @@ def execute_query(state):
         query_job = bq_client.query(formatted_sql)
         df = query_job.to_dataframe()
         # Store DataFrame in state so the plot node can access it
+        # Save as parquet file
+        os.makedirs("parquet_cache", exist_ok=True)
+        parquet_path = "parquet_cache/df_file.parquet"
+        df.to_parquet(parquet_path)
         updated_state = {**state, "results": df, "df": df}
     except Exception as e:
         logging.error(f"Error executing SQL query: {e}")
@@ -227,6 +231,8 @@ def classify_edge(state):
         return "llm_sql_response"
     elif state["query_type"] == "General Query":
         return "llm_response"
+    elif is_chart_requested:
+        return plot_chart 
     else:
         # 'Database Query'
         return "get_query_context"
@@ -289,7 +295,8 @@ def plot_chart(state: dict) -> dict:
       5) Returns updated context with an indicator that the plot was displayed (or an error).
     """
     print("++++++++++ Entering plot_chart ++++++++++")
-    df = state.get("df")
+    #df = state.get("df")
+    df = pd.read_parquet("parquet_cache/df_file.parquet")
     user_chart_request = state.get("query_text", "")
 
     if df is None or not isinstance(df, pd.DataFrame):
@@ -353,7 +360,7 @@ workflow.add_edge("generate_sql_query", "execute_query")
 # If user wants a chart, go to plot_chart; else go to END
 #workflow.add_conditional_edges("execute_query", "plot_chart", is_chart_requested)
 #workflow.add_conditional_edges("execute_query", END, is_not_chart_requested)
-workflow.add_conditional_edges("execute_query", chart_edge)
+workflow.add_edge("execute_query", END)
 
 workflow.add_edge("plot_chart", END)
 workflow.add_edge("llm_response", END)
