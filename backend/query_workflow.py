@@ -308,42 +308,42 @@ def plot_chart(state: dict) -> dict:
         return {**state, "plot_error": "No DataFrame available for plotting."}
 
     # Build prompt for the LLM
-    llm_prompt = f"""
-You are an AI that generates matplotlib chart code using an existing pandas DataFrame called `df`.
+        prompt = f"""
+You are given a pandas DataFrame named `df` with columns: {list(df.columns)}.
+Generate Python code using matplotlib to visualize this request:
+\"\"\"{user_request}\"\"\"
 
-The DataFrame already exists and is fully populated.
-
-Given the user request: "{user_chart_request}", generate only the Python code to produce a plot using `matplotlib.pyplot` and the existing `df`.
-
-**Strict Requirements**:
-- Do NOT include any explanations, comments, or markdown.
-- Do NOT import pandas or create sample data.
-- Do NOT redefine or modify the existing DataFrame `df`.
-- Use `plt.show()` to render the chart.
-
-Just return the valid, minimal Python code.
+Requirements:
+- Do NOT import pandas or redefine df.
+- Do NOT include plt.show().
+- Use matplotlib (no seaborn).
+- Only output pure Python code — no comments, explanations, or markdown.
 """
 
+    # Call LLM
+    generated_code = call_llm_for_plot_code(prompt)
+    st.code(generated_code, language="python")  # Optional: display the generated code
 
-    # Get code from LLM
-    generated_python_code = call_llm_for_plot_code(llm_prompt)
-    print('++++++++++++++++++++++++++code ++++++++++++++++\n',generated_python_code)
+    # Prepare REPL
+    repl = PythonREPLTool()
+    repl.globals["df"] = df
+    repl.globals["plt"] = plt
 
-    # Execute the generated code
-    local_vars = {"df": df, "plt": plt}
+    # Clear previous figures
+    plt.clf()
+
     try:
-        python_repl = PythonREPL()
-        python_repl.globals["df"] = df
-        utput = python_repl.run(generated_python_code)
-    except Exception as e:
-        print(f"Plot code error: {e}")
-        state["plot_error"] = str(e)
-        return state
+        # Run the code (it shouldn't include plt.show())
+        repl.run(generated_code)
 
-    # Indicate success
-    state["chart_plotted"] = True
-    print("++++++++++ Exiting plot_chart ++++++++++")
-    return state
+        # Now display the last matplotlib figure
+        st.pyplot(plt.gcf())  # ✅ This renders the figure in Streamlit
+
+    except Exception as e:
+        return {**state, "plot_error": str(e)}
+
+    return {**state, "chart_plotted": True}
+
 
 # Define a routing function that returns the next node name
 def chart_edge(state):
