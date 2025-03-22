@@ -11,7 +11,7 @@ from query_processing import get_query_context
 from openai import OpenAI
 from langchain_core.tools import Tool
 from langchain_experimental.utilities import PythonREPL
-
+import streamlit as st
 
 
 # ---------------------------------------------------------------------
@@ -325,7 +325,7 @@ Requirements:
     st.code(generated_code, language="python")  # Optional: display the generated code
 
     # Prepare REPL
-    repl = PythonREPLTool()
+    repl = PythonREPL()
     repl.globals["df"] = df
     repl.globals["plt"] = plt
 
