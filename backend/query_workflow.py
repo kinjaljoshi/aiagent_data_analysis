@@ -316,20 +316,22 @@ def plot_chart(state: dict) -> dict:
 
     # Build prompt for the LLM
     code_prompt = f"""
-You are given a pandas DataFrame named `df` with columns: {list(df.columns)}.
-Generate Python code using matplotlib to visualize this request:
-\"\"\"{user_request}\"\"\"
+You are a code generator. Use matplotlib to generate a chart for this request:
+\"\"\"{user_chart_request}\"\"\"
 
-Requirements:
-- Do NOT import pandas or redefine df.
-- Do NOT include plt.show().
-- Use matplotlib (no seaborn).
-- Only output pure Python code — no comments, explanations, or markdown.
+Use the existing DataFrame named df.
+
+Strict rules:
+- Do not import pandas or define df.
+- Use matplotlib only.
+- Save the figure at the end using: plt.savefig("output_chart.png")
+- Do not use plt.show(), or print anything.
+- No comments or explanations.
 """
 
     # Call LLM
     generated_code = call_llm_for_plot_code(code_prompt)
-    #st.code(generated_code, language="python")  # Optional: display the generated code
+    st.code(generated_code, language="python")  # Optional: display the generated code
 
     # Prepare REPL
     repl = PythonREPL()
@@ -337,21 +339,30 @@ Requirements:
     repl.globals["plt"] = plt
 
     # Clear previous figures
-    plt.clf()
+    # Ensure previous chart is cleared
+    if os.path.exists("output_chart.png"):
+        os.remove("output_chart.png")
 
     try:
         # Run the code (it shouldn't include plt.show())
         repl.run(generated_code)
-        if not plt.get_fignums():
-            return {**state, "plot_error": "No figure was created by the code."}
-        st.pyplot(plt.gcf())
+        #if not plt.get_fignums():
+        #    return {**state, "plot_error": "No figure was created by the code."}
+        #st.pyplot(plt.gcf())
         print('++++++++++run generated code +++++++++++++++++++++++')
 
         
     except Exception as e:
         return {**state, "plot_error": str(e)}
 
-    return {**state, "chart_plotted": True}
+     # Load and display the saved chart
+    if os.path.exists("output_chart.png"):
+        image = Image.open("output_chart.png")
+        st.image(image, caption="Generated Chart", use_column_width=True)
+        return {**state, "chart_plotted": True}
+    else:
+        return {**state, "plot_error": "Chart was not saved properly."}
+
 
 
 # Define a routing function that returns the next node name
