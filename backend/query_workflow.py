@@ -61,7 +61,7 @@ def classify_query(state):
     """Classifies the user query using LLM as either 'General Query' or 'Database Query'."""
     print("++++++++++ Entering classify_query ++++++++++")
     classification_prompt = f"""
-    Classify the following user query as either 'General Query' 'General Query with DB context' or 'Database Query':
+    Classify the following user query as either 'General Query' 'General Query with DB context' or 'Database Query' or 'Plot Requested':
     Query: "{state['query_text']}"
     Return ONLY 'General Query' 'General Query with DB context' or 'Database Query'.
     """
@@ -75,7 +75,7 @@ def classify_query(state):
             ]
         )
         query_type = response.choices[0].message.content.strip()
-        if query_type not in ["General Query", "Database Query", "General Query with DB context"]:
+        if query_type not in ["General Query", "Database Query", "General Query with DB context","Plot Requested"]:
             print("Invalid LLM response, defaulting to General Query")
             query_type = "General Query"
     except Exception as e:
@@ -231,8 +231,8 @@ def classify_edge(state):
         return "llm_sql_response"
     elif state["query_type"] == "General Query":
         return "llm_response"
-    elif is_chart_requested:
-        return plot_chart 
+    elif state["query_type"]== "Plot Requested":
+        return "plot_chart" 
     else:
         # 'Database Query'
         return "get_query_context"
