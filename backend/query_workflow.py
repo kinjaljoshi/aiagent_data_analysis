@@ -290,6 +290,17 @@ def call_llm_for_plot_code(prompt: str) -> str:
 # The new plot_chart node
 # ---------------------------------------------------------------------
 def plot_chart(state: dict) -> dict:
+    import asyncio
+    import matplotlib.pyplot as plt
+    from langchain.tools import PythonREPLTool
+    import streamlit as st
+
+    # Patch event loop if needed (Streamlit fix)
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     """
     This node:
       1) Takes a DataFrame in context['df'].
@@ -335,11 +346,12 @@ Requirements:
     try:
         # Run the code (it shouldn't include plt.show())
         repl.run(generated_code)
+        if not plt.get_fignums():
+            return {**state, "plot_error": "No figure was created by the code."}
+        st.pyplot(plt.gcf())
         print('++++++++++run generated code +++++++++++++++++++++++')
 
-        # Now display the last matplotlib figure
-        st.pyplot(plt.gcf())  
-
+        
     except Exception as e:
         return {**state, "plot_error": str(e)}
 
