@@ -279,7 +279,7 @@ def call_llm_for_plot_code(prompt: str) -> str:
 # ---------------------------------------------------------------------
 # The new plot_chart node
 # ---------------------------------------------------------------------
-def plot_chart(context: dict) -> dict:
+def plot_chart(state: dict) -> dict:
     """
     This node:
       1) Takes a DataFrame in context['df'].
@@ -289,8 +289,8 @@ def plot_chart(context: dict) -> dict:
       5) Returns updated context with an indicator that the plot was displayed (or an error).
     """
     print("++++++++++ Entering plot_chart ++++++++++")
-    df = context.get("df")
-    user_chart_request = context.get("query_text", "")
+    df = state.get("df")
+    user_chart_request = state.get("query_text", "")
 
     if df is None or not isinstance(df, pd.DataFrame):
         logging.warning("No valid DataFrame found to plot.")
