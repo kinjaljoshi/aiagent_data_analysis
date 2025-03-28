@@ -122,7 +122,7 @@ def generate_sql_query(state):
     Based on the provided context, generate only a valid SQL query. Generate a unique alias for each table used.
     Only use tables needed for answering user question.
     Include condition for aggregation and filtering as needed
-    Do not include any explanations, formatting, markdown, or comments. 
+    Do not include any explanations, formatting, markdown, or comments. Use transaction and lookup tables based upon question and context.
 
     Context:
     {final_context}
@@ -211,6 +211,7 @@ def execute_query(state):
 
     try:
         formatted_sql = replace_table_name_with_project_and_dataset(sql_query)
+        print(f"++++++++++ Formatted Query ++++++++++ {formatted_sql}")
         query_job = bq_client.query(formatted_sql)
         df = query_job.to_dataframe()
         # Store DataFrame in state so the plot node can access it
