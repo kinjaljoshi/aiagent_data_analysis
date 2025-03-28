@@ -54,4 +54,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ui = GradioUI()
-    ui.launch(server_port=args.port)
+    ui.launch(server_port=args.port, share=True)
