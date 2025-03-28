@@ -2,6 +2,7 @@ import sys
 import os
 import pandas as pd
 import gradio as gr
+import argparse
 
 # Add backend folder to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "backend")))
@@ -48,5 +49,9 @@ def GradioUI():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=7860, help="Port to run the Gradio app on")
+    args = parser.parse_args()
+
     ui = GradioUI()
-    ui.launch()
+    ui.launch(server_port=args.port)
